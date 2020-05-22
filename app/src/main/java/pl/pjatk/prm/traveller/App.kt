@@ -1,6 +1,7 @@
 package pl.pjatk.prm.traveller
 
 import android.app.Application
+import pl.pjatk.prm.traveller.dal.DbAccess
 
 class App: Application() {
 

@@ -7,15 +7,19 @@ import androidx.appcompat.app.AppCompatActivity
 
 class PermissionUtil(private val activity: AppCompatActivity) {
     companion object {
-        const val PERMISSION_REQUEST_CODE = 12
+        const val LOCATION_PERMISSION_REQUEST_CODE = 12
+        const val CAMERA_PERMISSION_REQUEST_CODE = 10
     }
 
-    val hasBackgroundPermission get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+    private val hasBackgroundPermission get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         activity.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
     else true
 
-    val hasLocationFinePermission get() =
+    private val hasLocationFinePermission get() =
         activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+    private val hasCameraPermission get() =
+        activity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     fun checkLocationPermissions(requestIfNot: Boolean = true): Boolean {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -27,7 +31,18 @@ class PermissionUtil(private val activity: AppCompatActivity) {
             if (!it) {
                 activity.requestPermissions(
                     permissions,
-                    PERMISSION_REQUEST_CODE
+                    LOCATION_PERMISSION_REQUEST_CODE
+                )
+            }
+        }
+    }
+
+    fun checkCameraPermission(requestIfNot: Boolean = true): Boolean {
+        return hasCameraPermission.also {
+            if (!it) {
+                activity.requestPermissions(
+                    arrayOf(Manifest.permission.CAMERA),
+                    CAMERA_PERMISSION_REQUEST_CODE
                 )
             }
         }

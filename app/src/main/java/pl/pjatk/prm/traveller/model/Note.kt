@@ -1,4 +1,4 @@
-package pl.pjatk.prm.traveller
+package pl.pjatk.prm.traveller.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -6,6 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "note")
 class Note (
     @PrimaryKey(autoGenerate = true) var id: Int,
-    var photoName: String,
-    var content: String
+    var photoURI: String,
+    var content: String,
+    var latitude: Double,
+    var longtitude: Double
 )
