@@ -8,19 +8,25 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.fragment_first.*
+import kotlinx.android.synthetic.main.fragment_gallery.*
+import pl.pjatk.prm.traveller.dal.DbAccess
+import pl.pjatk.prm.traveller.model.Note
+import kotlin.concurrent.thread
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment() {
+class GalleryFragment : Fragment() {
+
+    private val travellerNotesAdapter = TravellerNoteAdapter()
+    private val db by lazy { activity?.applicationContext?.let { DbAccess.getInstance(it).db } }
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_first, container, false)
+        return inflater.inflate(R.layout.fragment_gallery, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -28,11 +34,14 @@ class FirstFragment : Fragment() {
 
         ImageGalery.apply {
             layoutManager = LinearLayoutManager(activity)
-            adapter = TravellerNoteAdapter()
+            adapter = travellerNotesAdapter
         }
 
-        view.findViewById<Button>(R.id.button_first).setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+        thread {
+            val notes = db?.notes()?.getAll()
+            activity?.runOnUiThread {
+                travellerNotesAdapter.addNotes(notes ?: ArrayList())
+            }
         }
     }
 }

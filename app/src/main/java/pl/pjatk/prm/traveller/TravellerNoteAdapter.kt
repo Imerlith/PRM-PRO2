@@ -4,6 +4,8 @@ import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.traveller_note_item.view.*
 import pl.pjatk.prm.traveller.model.Note
@@ -35,11 +37,26 @@ class TravellerNoteAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
 
         fun bind(travellerNote: Note) {
-            note.text = travellerNote.content
+            note.text = ""
             val image = File(travellerNote.photoURI)
             val inputStream = FileInputStream(image)
             val imageBitMap = BitmapFactory.decodeStream(inputStream)
             imageView.setImageBitmap(imageBitMap)
+
+            itemView.setOnClickListener {
+                it.findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment,
+                bundleOf(
+                    "absolutePath" to travellerNote.photoURI,
+                    "noteContent" to travellerNote.content,
+                    "isUpdate" to true
+                ))
+            }
         }
+    }
+
+    fun addNotes(notes: List<Note>) {
+        val oldSize = this.travelerNotes.size
+        this.travelerNotes.addAll(notes)
+        notifyItemRangeInserted(oldSize, notes.size)
     }
 }

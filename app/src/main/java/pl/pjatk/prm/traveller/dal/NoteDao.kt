@@ -18,6 +18,9 @@ interface NoteDao {
     @Query("SELECT * FROM note WHERE photoURI = :photoName")
     fun getByPhotoName(photoName: String): Note?
 
+    @Query("SELECT * FROM note WHERE latitude = :latitude AND longtitude = :longitude")
+    fun getByLocation(latitude: Double, longitude: Double): List<Note>
+
     @Insert
     fun insert(note: Note)
 

@@ -1,18 +1,25 @@
 package pl.pjatk.prm.traveller
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import com.google.android.material.snackbar.Snackbar
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import pl.pjatk.prm.traveller.dal.DbAccess
 import pl.pjatk.prm.traveller.model.Note
+import pl.pjatk.prm.traveller.service.LocationService
 import java.io.File
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -21,17 +28,8 @@ import kotlin.concurrent.thread
 class MainActivity : AppCompatActivity() {
 
     private val db by lazy { DbAccess.getInstance(applicationContext).db }
-    private val locationManager by lazy { LocationServices.getFusedLocationProviderClient(this) }
-    private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult?) {
-            locationResult?.locations?.get(0)?.let {
-                print("latitude = ${it.latitude} and longitude = ${it.longitude}")
-            }
-        }
-    }
-    companion object {
-
-    }
+    private lateinit var photoUri: Uri
+    private lateinit var abPath: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +38,8 @@ class MainActivity : AppCompatActivity() {
 
 
         if (PermissionUtil(this).checkLocationPermissions()) {
-            requestLocation()
+            val serviceIntent = Intent(this, LocationService::class.java)
+            startForegroundService(serviceIntent)
         }
 
         //laduj poprzednie zdjecia
@@ -58,17 +57,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestLocation() {
-        val request = LocationRequest.create().apply {
-            interval = 1000
-            numUpdates = 1
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-        locationManager.requestLocationUpdates(request, locationCallback, null)
-    }
 
     private fun createImageGallery() {
-        println(getNotesMap())
+       Log.d("NMap", getNotesMap().toString())
     }
 
     private fun getPhotos() {
@@ -111,6 +102,8 @@ class MainActivity : AppCompatActivity() {
                     )
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
                     startActivityForResult(intent, Constants.IMAGE_CAPTURE_REQUEST_CODE)
+                    photoUri = uri
+                    Log.d("URI", "uri is $photoUri")
                 }
             }
         }
@@ -120,9 +113,22 @@ class MainActivity : AppCompatActivity() {
         val timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now())
 
         return File.createTempFile(
-            Constants.FILE_NAME_PREFIX + timestamp,
+            Constants.FILE_PREFIX + timestamp,
                 Constants.FILE_SUFFIX,
                 filesDir
-        )
+        ).also {
+            abPath = it.absolutePath
+            Log.d("URI", "absolute path is is ${it.absolutePath}")
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == Constants.IMAGE_CAPTURE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            nav_host_fragment.findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment, bundleOf(
+                "PhotoUri" to photoUri,
+                "absolutePath" to abPath
+            ))
+        }
     }
 }

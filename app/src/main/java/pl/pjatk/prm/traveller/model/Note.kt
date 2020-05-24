@@ -10,4 +10,8 @@ class Note (
     var content: String,
     var latitude: Double,
     var longtitude: Double
-)
+) {
+    override fun toString(): String {
+        return "Note(id=$id, photoURI='$photoURI', content='$content', latitude=$latitude, longtitude=$longtitude)"
+    }
+}

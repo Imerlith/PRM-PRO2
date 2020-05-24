@@ -3,26 +3,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/GalleryFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="pl.pjatk.prm.traveller.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:id="@+id/GalleryFragment"
+        android:name="pl.pjatk.prm.traveller.GalleryFragment"
+        android:label="@string/gallery_fragment_label"
+        tools:layout="@layout/fragment_gallery">
 
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            app:destination="@id/EditNoteFragment" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="pl.pjatk.prm.traveller.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
+        android:id="@+id/EditNoteFragment"
+        android:name="pl.pjatk.prm.traveller.EditNoteFragment"
+        android:label="@string/edit_note_fragment_label"
+        tools:layout="@layout/fragment_edit_note">
 
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            app:destination="@id/GalleryFragment" />
+        <argument
+            android:name="PhotoUri"
+            app:argType="android.net.Uri" />
+        <argument
+            android:name="absolutePath"
+            app:argType="string" />
+        <argument
+            android:name="noteContent"
+            app:argType="string" />
+        <argument
+            android:name="isUpate"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
 </navigation>
